@@ -1,0 +1,87 @@
+version: "3"
+services:
+  edge_com:
+    image: eclipse-mosquitto
+    container_name: edge_com
+    restart: always
+    volumes:
+      - ./volume/.edge_com/mosquitto:/mosquitto
+      - ./volume/.edge_com/mosquitto/config:/mosquitto/config
+      - ./volume/.edge_com/mosquitto/data:/mosquitto/data
+      - ./volume/.edge_com/mosquitto/log:/mosquitto/log
+    ports:
+      - "1884:1883"
+      - "9004:9001"    
+    networks:
+      - edge_net
+
+  inner_com:
+    image: eclipse-mosquitto
+    container_name: inner_com
+    restart: always
+    volumes:
+      - ./volume/.inner_com/mosquitto:/mosquitto
+      - ./volume/.inner_com/mosquitto/config:/mosquitto/config
+      - ./volume/.inner_com/mosquitto/data:/mosquitto/data
+      - ./volume/.inner_com/mosquitto/log:/mosquitto/log
+    ports:
+      - "1885:1883"
+      - "9005:9001"    
+    networks:
+      - inner_net
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - "27017:27017"
+    networks:
+      - inner_net
+
+  fuseki:
+      container_name: fuseki
+      image: zacanbot/fuseki
+      environment:
+          JVM_ARGS: -Xmx4g
+      volumes:
+        - ./volume/fuseki-server/data:/data/fuseki
+      ports:
+        - "4040:3030"
+      networks:
+        - inner_net
+networks:
+  inner_net:
+    driver: "bridge"
+  edge_net:
+    driver: "bridge"
+  # handler:
+  #   image: openjdk
+  #   container_name: ufcity-handler
+  #   # restart: always
+  #   volumes:
+  #     - ./volume/ufcity-handler:/usr/src/ufcity-handler
+  #   working_dir: /usr/src/ufcity-handler
+  #   command: java -jar ufcity-fog-handler.jar
+  #   networks:
+  #     - inner-net
+  # traking:
+  #   image: openjdk
+  #   container_name: ufcity-traking
+  #   # restart: always
+  #   volumes:
+  #     - ./volume/ufcity-traking:/usr/src/ufcity-traking
+  #   working_dir: /usr/src/ufcity-traking
+  #   command: java -jar ufcity-fog-traking.jar
+  #   networks:
+  #     - inner-net
+  #     - north-net
+
+# ubuntu:
+#   image: ubuntu:jammy
+#   container_name: ubuntu
+#   networks:
+#     - inner_net
