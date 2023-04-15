@@ -1,73 +1,111 @@
 version: "3"
 services:
-  edge_com:
+  edge-com:
     image: eclipse-mosquitto
-    container_name: edge_com
+    container_name: edge-com
+    hostname: edge-com
     restart: always
     volumes:
-      - ./volume/.edge_com/mosquitto:/mosquitto
-      - ./volume/.edge_com/mosquitto/config:/mosquitto/config
-      - ./volume/.edge_com/mosquitto/data:/mosquitto/data
-      - ./volume/.edge_com/mosquitto/log:/mosquitto/log
+      - ./volume/edge-com/mosquitto:/mosquitto
+      - ./volume/edge-com/mosquitto/config:/mosquitto/config
+      - ./volume/edge-com/mosquitto/data:/mosquitto/data
+      - ./volume/edge-com/mosquitto/log:/mosquitto/log
     ports:
       - "1884:1883"
       - "9004:9001"    
     networks:
-      - edge_net
+      - edge-net
 
-  inner_com:
+  inner-com:
     image: eclipse-mosquitto
-    container_name: inner_com
+    container_name: inner-com
+    hostname: inner-com
     restart: always
     volumes:
-      - ./volume/.inner_com/mosquitto:/mosquitto
-      - ./volume/.inner_com/mosquitto/config:/mosquitto/config
-      - ./volume/.inner_com/mosquitto/data:/mosquitto/data
-      - ./volume/.inner_com/mosquitto/log:/mosquitto/log
+      - ./volume/inner-com/mosquitto:/mosquitto
+      - ./volume/inner-com/mosquitto/config:/mosquitto/config
+      - ./volume/inner-com/mosquitto/data:/mosquitto/data
+      - ./volume/inner-com/mosquitto/log:/mosquitto/log
     ports:
       - "1885:1883"
       - "9005:9001"    
     networks:
-      - inner_net
+      - inner-net
+
+  cloud:
+    image: eclipse-mosquitto
+    container_name: cloud
+    hostname: cloud
+    restart: always
+    volumes:
+      - ./volume/cloud/mosquitto:/mosquitto
+      - ./volume/cloud/mosquitto/config:/mosquitto/config
+      - ./volume/cloud/mosquitto/data:/mosquitto/data
+      - ./volume/cloud/mosquitto/log:/mosquitto/log
+    ports:
+      - "1886:1883"
+      - "9006:9001"    
+    networks:
+      - inner-net
 
   mongo:
-    image: mongo:latest
+    image: mongo
     container_name: mongo
+    hostname: mongo
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
-    ports:
-      - "27017:27017"
     networks:
-      - inner_net
+      - inner-net
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    hostname: mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+    networks:
+      - inner-net
 
   fuseki:
-      container_name: fuseki
-      image: zacanbot/fuseki
-      environment:
-          JVM_ARGS: -Xmx4g
-      volumes:
-        - ./volume/fuseki-server/data:/data/fuseki
-      ports:
-        - "4040:3030"
-      networks:
-        - inner_net
+    image: zacanbot/fuseki
+    container_name: fuseki
+    hostname: fuseki
+    environment:
+        JVM_ARGS: -Xmx4g
+    volumes:
+      - ./volume/fuseki-server/data:/data/fuseki
+    ports:
+      - "4040:3030"
+    networks:
+      - inner-net
+
+  handler:
+    image: openjdk
+    container_name: ufcity-handler
+    hostname: ufcity-handler
+    restart: always
+    volumes:
+      - ./volume/ufcity-handler:/usr/src/ufcity-handler
+    working_dir: /usr/src/ufcity-handler
+    command: java -jar ufcity-fog-handler-1.0-SNAPSHOT.jar
+    networks:
+      - edge-net
+      - inner-net
+      
 networks:
-  inner_net:
+  inner-net:
     driver: "bridge"
-  edge_net:
+  edge-net:
     driver: "bridge"
-  # handler:
-  #   image: openjdk
-  #   container_name: ufcity-handler
-  #   # restart: always
-  #   volumes:
-  #     - ./volume/ufcity-handler:/usr/src/ufcity-handler
-  #   working_dir: /usr/src/ufcity-handler
-  #   command: java -jar ufcity-fog-handler.jar
-  #   networks:
-  #     - inner-net
+
+
   # traking:
   #   image: openjdk
   #   container_name: ufcity-traking
@@ -84,4 +122,4 @@ networks:
 #   image: ubuntu:jammy
 #   container_name: ubuntu
 #   networks:
-#     - inner_net
+#     - inner-net
