@@ -1,52 +1,88 @@
 version: "3"
 services:
-  edge-com:
-    image: eclipse-mosquitto
-    container_name: edge-com
-    hostname: edge-com
-    restart: always
+  fluentd:
+    build: ./dockerfiles/fluentd
+    container_name: fluentd
+    hostname: fluentd
     volumes:
-      - ./volume/edge-com/mosquitto:/mosquitto
-      - ./volume/edge-com/mosquitto/config:/mosquitto/config
-      - ./volume/edge-com/mosquitto/data:/mosquitto/data
-      - ./volume/edge-com/mosquitto/log:/mosquitto/log
+      - ./volume/fluentd/conf:/fluentd/etc
+    links:
+      - "elasticsearch"
     ports:
-      - "1884:1883"
-      - "9004:9001"    
+      - "24224:24224"
+      - "24224:24224/udp"
     networks:
-      - edge-net
+      net:
+        ipv4_address: 172.100.100.12
 
-  inner-com:
-    image: eclipse-mosquitto
-    container_name: inner-com
-    hostname: inner-com
-    restart: always
-    volumes:
-      - ./volume/inner-com/mosquitto:/mosquitto
-      - ./volume/inner-com/mosquitto/config:/mosquitto/config
-      - ./volume/inner-com/mosquitto/data:/mosquitto/data
-      - ./volume/inner-com/mosquitto/log:/mosquitto/log
+  web-fluentd:
+    image: httpd
+    container_name: web-fluentd
+    hostname: web-fluentd
     ports:
-      - "1885:1883"
-      - "9005:9001"    
+      - "85:80"
+    depends_on:
+      - fluentd
+    links:
+      - fluentd
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: 172.100.100.12:24224 #<IP> or <hostname[fluentd]>
+        fluentd-async-connect: "true"
+        fluentd-retry-wait: 1s
+        fluentd-max-retries: 30
+        tag: httpd.access
     networks:
-      - inner-net
+      net:
+        ipv4_address: 172.100.100.11
 
-  cloud:
-    image: eclipse-mosquitto
-    container_name: cloud
-    hostname: cloud
-    restart: always
-    volumes:
-      - ./volume/cloud/mosquitto:/mosquitto
-      - ./volume/cloud/mosquitto/config:/mosquitto/config
-      - ./volume/cloud/mosquitto/data:/mosquitto/data
-      - ./volume/cloud/mosquitto/log:/mosquitto/log
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.1.2
+    container_name: elasticsearch
+    hostname: elasticsearch
+    environment:
+      - "discovery.type=single-node"
+      - "xpack.security.enabled=false"
+      - "xpack.security.enrollment.enabled=false"
+    expose:
+      - "9200"
     ports:
-      - "1886:1883"
-      - "9006:9001"    
+      - "9200:9200"
     networks:
-      - inner-net
+      net:
+        ipv4_address: 172.100.100.10
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.1.2
+    container_name: kibana
+    hostname: kibana
+    depends_on:
+      - elasticsearch
+    links:
+      - elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=false
+    ports:
+      - "5601:5601"
+    networks:
+      net:
+        ipv4_address: 172.100.100.9
+
+  semantic:
+    image: openjdk
+    container_name: ufcity-semantic
+    hostname: ufcity-semantic
+    #restart: always
+    volumes:
+      - ./volume/ufcity-semantic:/usr/src/ufcity-semantic
+    working_dir: /usr/src/ufcity-semantic
+    command: java -jar ufcity-fog-semantic-1.0-SNAPSHOT.jar
+    networks:
+      net:
+        ipv4_address: 172.100.100.8
 
   mongo:
     image: mongo
@@ -57,7 +93,8 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
     networks:
-      - inner-net
+      net:
+        ipv4_address: 172.100.100.7
 
   mongo-express:
     image: mongo-express
@@ -71,55 +108,74 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
     networks:
-      - inner-net
+      net:
+        ipv4_address: 172.100.100.6  
 
   fuseki:
-    image: zacanbot/fuseki
+    image: secoresearch/fuseki
     container_name: fuseki
     hostname: fuseki
-    environment:
-        JVM_ARGS: -Xmx4g
-    volumes:
-      - ./volume/fuseki-server/data:/data/fuseki
     ports:
-      - "4040:3030"
+      - "3030:3030"
+    environment:
+      - ADMIN_PASSWORD=ufcity
+      - ENABLE_DATA_WRITE=true
+      - ENABLE_UPDATE=true
+      - ENABLE_UPLOAD=true
+      - QUERY_TIMEOUT=3000
+    volumes:
+      - ./volume/fuseki-data:/fuseki-base/databases
+      - ./volume/fuseki-configuration:/fuseki-base/configuration   
     networks:
-      - inner-net
+      net:
+        ipv4_address: 172.100.100.5 
 
   handler:
     image: openjdk
     container_name: ufcity-handler
     hostname: ufcity-handler
-    restart: always
+    #restart: always
     volumes:
       - ./volume/ufcity-handler:/usr/src/ufcity-handler
     working_dir: /usr/src/ufcity-handler
     command: java -jar ufcity-fog-handler-1.0-SNAPSHOT.jar
     networks:
-      - edge-net
-      - inner-net
+      net:
+        ipv4_address: 172.100.100.4
+
+  cep:
+    image: openjdk
+    container_name: ufcity-cep
+    hostname: ufcity-cep
+    #restart: always
+    volumes:
+      - ./volume/ufcity-cep:/usr/src/ufcity-cep
+    working_dir: /usr/src/ufcity-cep
+    command: java -jar ufcity-fog-cep-1.0-SNAPSHOT.jar
+    networks:
+      net:
+        ipv4_address: 172.100.100.3
+
+  mqtt:
+    image: eclipse-mosquitto
+    container_name: mqtt
+    hostname: mqtt
+    restart: always
+    volumes:
+      - ./volume/mqtt/mosquitto:/mosquitto
+      - ./volume/mqtt/mosquitto/config:/mosquitto/config
+      - ./volume/mqtt/mosquitto/data:/mosquitto/data
+      - ./volume/mqtt/mosquitto/log:/mosquitto/log
+    ports:
+      - "1884:1883"
+      - "9002:9001"    
+    networks:
+      net:
+        ipv4_address: 172.100.100.2
       
 networks:
-  inner-net:
+  net:
     driver: "bridge"
-  edge-net:
-    driver: "bridge"
-
-
-  # traking:
-  #   image: openjdk
-  #   container_name: ufcity-traking
-  #   # restart: always
-  #   volumes:
-  #     - ./volume/ufcity-traking:/usr/src/ufcity-traking
-  #   working_dir: /usr/src/ufcity-traking
-  #   command: java -jar ufcity-fog-traking.jar
-  #   networks:
-  #     - inner-net
-  #     - north-net
-
-# ubuntu:
-#   image: ubuntu:jammy
-#   container_name: ubuntu
-#   networks:
-#     - inner-net
+    ipam:
+      config:
+        - subnet: 172.100.100.0/16
