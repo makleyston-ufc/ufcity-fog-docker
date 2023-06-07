@@ -37,7 +37,7 @@ Go to `http://<host_ip>:80` to access the services present on the node.
 
 ### Outline structure used between *containers*:
 #### Edge computing
-```
+
 | _MQTT Topics_                                      | _Example_                            | _Message_     |
 |----------------------------------------------------|--------------------------------------|---------------|
 | **Edge Module: Publish**                           |                                      |               |
@@ -50,10 +50,10 @@ Go to `http://<host_ip>:80` to access the services present on the node.
 | commands_fog_to_edge/[uuid_device]/[uuid_resource] | commands_fog_to_edge/[uuid_device]/+ | resource_json |
 | resend/[uuid_device]                               | resend/[uuid_device]                 | uuid_device   |
 | resend/[uuid_device]/[uuid_resource]               | resend/[uuid_device]/+               | uuid_resource |
-```
+
 
 #### Fog computing <> Edge Module
-``` 
+ 
 | _MQTT Topics_                                          | _Example_             | _Message_     |
 |--------------------------------------------------------|-----------------------|---------------|
 | **Fog computing <> Edge Module: Publish**              |                       |               |
@@ -69,4 +69,3 @@ Go to `http://<host_ip>:80` to access the services present on the node.
 |                                                        |                       |               |
 | **Fog computing <> Cloud computing: Publish**          |                       |               |
 | resource_data/[uuid_fog]/[uuid_device]/[uuid_resource] |                       | resource_json |
-```
