@@ -1,5 +1,17 @@
 version: "3"
 services:
+  home:
+    image: httpd
+    container_name: home
+    hostname: home
+    ports:
+      - "80:80"
+    volumes:
+      - ./volume/home:/usr/local/apache2/htdocs/
+    networks:
+      net:
+        ipv4_address: 192.168.10.13
+
   fluentd:
     build: ./dockerfiles/fluentd
     container_name: fluentd
@@ -13,14 +25,14 @@ services:
       - "24224:24224/udp"
     networks:
       net:
-        ipv4_address: 172.100.100.12
+        ipv4_address: 192.168.10.12
 
   web-fluentd:
     image: httpd
     container_name: web-fluentd
     hostname: web-fluentd
     ports:
-      - "85:80"
+      - "81:80"
     depends_on:
       - fluentd
     links:
@@ -28,14 +40,14 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: 172.100.100.12:24224 #<IP> or <hostname[fluentd]>
+        fluentd-address: 192.168.10.12:24224 #<IP> or <hostname[fluentd]>
         fluentd-async-connect: "true"
         fluentd-retry-wait: 1s
         fluentd-max-retries: 30
         tag: httpd.access
     networks:
       net:
-        ipv4_address: 172.100.100.11
+        ipv4_address: 192.168.10.11
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.1.2
@@ -51,7 +63,7 @@ services:
       - "9200:9200"
     networks:
       net:
-        ipv4_address: 172.100.100.10
+        ipv4_address: 192.168.10.10
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.1.2
@@ -69,7 +81,7 @@ services:
       - "5601:5601"
     networks:
       net:
-        ipv4_address: 172.100.100.9
+        ipv4_address: 192.168.10.9
 
   semantic:
     image: openjdk
@@ -82,7 +94,7 @@ services:
     command: java -jar ufcity-fog-semantic-1.0-SNAPSHOT.jar
     networks:
       net:
-        ipv4_address: 172.100.100.8
+        ipv4_address: 192.168.10.8
 
   mongo:
     image: mongo
@@ -94,8 +106,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: example
     networks:
       net:
-        ipv4_address: 172.100.100.7
-
+        ipv4_address: 192.168.10.7
   mongo-express:
     image: mongo-express
     container_name: mongo-express
@@ -109,26 +120,21 @@ services:
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
     networks:
       net:
-        ipv4_address: 172.100.100.6  
+        ipv4_address: 192.168.10.6
 
   fuseki:
-    image: secoresearch/fuseki
+    image: stain/jena-fuseki
     container_name: fuseki
     hostname: fuseki
     ports:
-      - "3030:3030"
+        - "3030:3030"
     environment:
-      - ADMIN_PASSWORD=ufcity
-      - ENABLE_DATA_WRITE=true
-      - ENABLE_UPDATE=true
-      - ENABLE_UPLOAD=true
-      - QUERY_TIMEOUT=3000
+        - ADMIN_PASSWORD=ufcity
     volumes:
-      - ./volume/fuseki-data:/fuseki-base/databases
-      - ./volume/fuseki-configuration:/fuseki-base/configuration   
+        - ./volume/fuseki:/fuseki
     networks:
       net:
-        ipv4_address: 172.100.100.5 
+        ipv4_address: 192.168.10.5
 
   handler:
     image: openjdk
@@ -141,7 +147,7 @@ services:
     command: java -jar ufcity-fog-handler-1.0-SNAPSHOT.jar
     networks:
       net:
-        ipv4_address: 172.100.100.4
+        ipv4_address: 192.168.10.4
 
   cep:
     image: openjdk
@@ -154,7 +160,7 @@ services:
     command: java -jar ufcity-fog-cep-1.0-SNAPSHOT.jar
     networks:
       net:
-        ipv4_address: 172.100.100.3
+        ipv4_address: 192.168.10.3
 
   mqtt:
     image: eclipse-mosquitto
@@ -167,15 +173,15 @@ services:
       - ./volume/mqtt/mosquitto/data:/mosquitto/data
       - ./volume/mqtt/mosquitto/log:/mosquitto/log
     ports:
-      - "1884:1883"
-      - "9002:9001"    
+      - "1883:1883"
+      - "9001:9001"
     networks:
       net:
-        ipv4_address: 172.100.100.2
-      
+        ipv4_address: 192.168.10.2
+
 networks:
   net:
     driver: "bridge"
     ipam:
       config:
-        - subnet: 172.100.100.0/16
+        - subnet: 192.168.10.0/27
