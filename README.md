@@ -1,28 +1,41 @@
-# UFCity Fog Computing Docker
+# UFCity Fog Computing - Docker
 
-### Comandos para utilização:
+### Requirements
+* Docker engine
+* Docker compose
 
-Baixar o repositório:
+### How to use:
+
+Clone the UFCity repo:
 ```
-git clone git@github.com:makleyston-ufc/ufcity_fog_computing_docker.git
-cd ufcity_fog_computing_docker
+git clone https://github.com/makleyston-ufc/ufcity-fog-docker.git
+cd ufcity-fog-docker
 ```
 
-Inicializar os *containers*: 
+Configuring the environment:
 ```
-docker-compose up -d
+sudo ./ufcity-fog.sh
 ```
 
-Esta versão (version 0.1) contém os seguintes *containers*:
+Initializing the *containers*: 
+```
+sudo docker-compose up -d
+```
+
+This release (version 1.0) contains the following *services*:
 * fuseki
 * ufcity-handler
-* edge-com
-* inner-com
-* mongo
-* mongo-express
+* ufcity-cep
+* ufcity-semantic
+* mqtt
+* elasticsearch
+* fluentd
+* kibana
+* mongo database
 
+Go to `http://<host_ip>:80` to access the services present on the node.
 
-### Estrutura de tópicos utilizada entre os *containers*:
+### Outline structure used between *containers*:
 ```
 ## MQTT Topics ##
 Edge Module:
