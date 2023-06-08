@@ -3,6 +3,12 @@
 # Define the current installed version
 version="1.0"
 
+# Obtém o nome do host
+host_name=$(hostname)
+
+# Obtém o endereço IP
+ip_address=$(hostname -I)
+
 function perform_installation() {
   # Update repositories
   # sudo apt update
@@ -117,8 +123,7 @@ semantic:
  - username: admin
  - password: admin' | sudo tee -a  ./volume/ufcity-semantic/config.yaml > /dev/null
 
-sudo wget -v -O ./volume/ufcity-semantic/ufcity-fog-semantic-1.0-SNAPSHOT.jar https://github.com/makleyston-ufc/ufcity-fog-semantic/raw/master/build/libs/ufcity-fog-semantic-1.0-SNAPSHOT.jar
-echo '<!DOCTYPE html><html lang="en"><head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>UFCity - Fog Computing</title></head><body> Available services: <ul> <li> <a href="http://10.0.0.112:8081">MongoDB</a> </li> <li> <a href="http://10.0.0.112:3030">Fuseki server</a> </li> <li> <a href="http://10.0.0.112:5601">Kibana</a> </li> <li> <a href="http://10.0.0.112:9200">Elasticsearch (this link only verify status)</a> </li> <li> <a href="http://10.0.0.112:81">FluentD (this link only verify status)</a> </li> </ul> UFCity Project: <a href="https://github.com/makleyston-ufc">GitHub</a><br> Developed and maintained by <a href="http://lattes.cnpq.br/2002489019346835">Danne M. G. Pereira</a>.<br> Inst. <a href="https://www.ufc.br/">UFC</a> and <a href="http://www.mdcc.ufc.br/">MDCC</a></body></html>' | sudo tee -a  ./volume/home/index.html > /dev/null
+echo '<!DOCTYPE html><html lang="en"><head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>UFCity - Fog Computing</title></head><body> Available services: <ul> <li> <a href="http://$ip_address:8081">MongoDB</a> </li> <li> <a href="http://$ip_address:3030">Fuseki server</a> </li> <li> <a href="http://$ip_address:5601">Kibana</a> </li> <li> <a href="http://$ip_address:9200">Elasticsearch (this link only verify status)</a> </li> <li> <a href="http://$ip_address:81">FluentD (this link only verify status)</a> </li> </ul> UFCity Project: <a href="https://github.com/makleyston-ufc">GitHub</a><br> Developed and maintained by <a href="http://lattes.cnpq.br/2002489019346835">Danne M. G. Pereira</a>.<br> Inst. <a href="https://www.ufc.br/">UFC</a> and <a href="http://www.mdcc.ufc.br/">MDCC</a></body></html>' | sudo tee -a  ./volume/home/index.html > /dev/null
 
 # Creating Dockerfiles
 ## Fluentd
@@ -131,6 +136,8 @@ RUN ["gem", "install", "elasticsearch", "--no-document", "--version", "< 8"]
 RUN ["gem", "install", "fluent-plugin-elasticsearch", "--no-document", "--version", "5.2.2"]
 USER fluent
 ' | sudo tee -a  ./dockerfiles/fluentd/Dockerfile > /dev/null
+
+wget -O ./volume/fuseki/iot-stream.rdf http://iot.ee.surrey.ac.uk/iot-crawler/ontology/iot-stream/ontology.xml
 
   # Update the version
   mkdir -p ./.version

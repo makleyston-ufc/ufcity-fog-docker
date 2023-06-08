@@ -4,6 +4,7 @@ services:
     image: httpd
     container_name: home
     hostname: home
+    restart: always
     ports:
       - "80:80"
     volumes:
@@ -16,6 +17,7 @@ services:
     build: ./dockerfiles/fluentd
     container_name: fluentd
     hostname: fluentd
+    restart: always
     volumes:
       - ./volume/fluentd/conf:/fluentd/etc
     links:
@@ -31,6 +33,7 @@ services:
     image: httpd
     container_name: web-fluentd
     hostname: web-fluentd
+    restart: always
     ports:
       - "81:80"
     depends_on:
@@ -53,6 +56,7 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.1.2
     container_name: elasticsearch
     hostname: elasticsearch
+    restart: always
     environment:
       - "discovery.type=single-node"
       - "xpack.security.enabled=false"
@@ -69,6 +73,7 @@ services:
     image: docker.elastic.co/kibana/kibana:8.1.2
     container_name: kibana
     hostname: kibana
+    restart: always
     depends_on:
       - elasticsearch
     links:
@@ -87,7 +92,7 @@ services:
     image: openjdk
     container_name: ufcity-semantic
     hostname: ufcity-semantic
-    #restart: always
+    restart: always
     volumes:
       - ./volume/ufcity-semantic:/usr/src/ufcity-semantic
     working_dir: /usr/src/ufcity-semantic
@@ -126,12 +131,16 @@ services:
     image: stain/jena-fuseki
     container_name: fuseki
     hostname: fuseki
+    restart: always
     ports:
         - "3030:3030"
     environment:
         - ADMIN_PASSWORD=ufcity
+        - TDB=2
+        # - FUSEKI_DATASET_1=ufcity-ont
     volumes:
         - ./volume/fuseki:/fuseki
+        - ./volume/fuseki-ontology:/staging
     networks:
       net:
         ipv4_address: 192.168.10.5
@@ -140,7 +149,7 @@ services:
     image: openjdk
     container_name: ufcity-handler
     hostname: ufcity-handler
-    #restart: always
+    restart: always
     volumes:
       - ./volume/ufcity-handler:/usr/src/ufcity-handler
     working_dir: /usr/src/ufcity-handler
@@ -153,7 +162,7 @@ services:
     image: openjdk
     container_name: ufcity-cep
     hostname: ufcity-cep
-    #restart: always
+    restart: always
     volumes:
       - ./volume/ufcity-cep:/usr/src/ufcity-cep
     working_dir: /usr/src/ufcity-cep
