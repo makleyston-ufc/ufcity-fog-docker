@@ -6,19 +6,22 @@
 
 ### How to use:
 
-#### Clone the UFCity repo:
+#### Clone the UFCity repository:
 ```
 git clone https://github.com/makleyston-ufc/ufcity-fog-docker.git
 cd ufcity-fog-docker
 ```
 
-#### Define the <HOST_IP> and Running the configuration:
-* Insert the host's IP address in the ip_address attribute in the ufcity-fog.sh file:
+#### Define the <HOST_IP> and run the configuration:
+* Insert the host's IP address in the `ip_host` attribute and the cloud's IP address in the `ip_cloud` in the ufcity-fog.sh file:
 ```
 # HOST_IP
-ip_address="<HOST_IP>"
+ip_host="<HOST_IP>"
+
+# CLOUD_IP
+ip_cloud="10.0.0.247"
 ```
-* Make sure to replace <HOST_IP> with the actual IP address of the host.
+* Make sure to replace `<HOST_IP>` with the actual IP address of the host.
 * Run the following command with administrator privileges to execute the script:
 ```
 sudo ./ufcity-fog.sh

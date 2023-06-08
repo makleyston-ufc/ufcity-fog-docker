@@ -1,7 +1,10 @@
 #!/bin/bash
 
 # HOST_IP
-ip_address="10.0.0.112"
+ip_host="10.0.0.112"
+
+# CLOUD_IP
+ip_cloud="10.0.0.247"
 
 # Define the current installed version
 version="1.0"
@@ -88,7 +91,7 @@ echo "fog-computing:
   - address: mqtt
   - port: 1883
 cloud-computing:
-  - address: mqtt
+  - address: "$ip_cloud"
   - port: 1883
 database:
   - address: mongo
@@ -101,7 +104,7 @@ echo "fog-computing:
  - address: mqtt
  - port: 1883
 cloud-computing:
- - address: mqtt
+ - address: "$ip_cloud"
  - port: 1883
 database:
  - address: mongo
@@ -129,7 +132,7 @@ semantic:
  - username: admin
  - password: ufcity" | sudo tee -a  ./volume/ufcity-semantic/config.yaml > /dev/null
 
-echo "<!DOCTYPE html><html lang=\"en\"><head> <meta charset=\"UTF-8\"> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> <title>UFCity - Fog Computing</title></head><body> Available services: <ul> <li> <a href=\"http://$ip_address:8081\">MongoDB</a> </li> <li> <a href=\"http://$ip_address:3030\">Fuseki server</a> </li> <li> <a href=\"http://$ip_address:5601\">Kibana</a> </li> <li> <a href=\"http://$ip_address:9200\">Elasticsearch (this link only verify status)</a> </li> <li> <a href=\"http://$ip_address:81\">FluentD (this link only verify status)</a> </li> </ul> UFCity Project: <a href=\"https://github.com/makleyston-ufc\">GitHub</a><br> Developed and maintained by <a href=\"http://lattes.cnpq.br/2002489019346835\">Danne M. G. Pereira</a>.<br> Inst. <a href=\"https://www.ufc.br/\">UFC</a> and <a href=\"http://www.mdcc.ufc.br/\">MDCC</a></body></html>" | sudo tee -a ./volume/home/index.html > /dev/null
+echo "<!DOCTYPE html><html lang=\"en\"><head> <meta charset=\"UTF-8\"> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> <title>UFCity - Fog Computing</title></head><body> Available services: <ul> <li> <a href=\"http://$ip_host:8081\">MongoDB</a> </li> <li> <a href=\"http://$ip_host:3030\">Fuseki server</a> </li> <li> <a href=\"http://$ip_host:5601\">Kibana</a> </li> <li> <a href=\"http://$ip_host:9200\">Elasticsearch (this link only verify status)</a> </li> <li> <a href=\"http://$ip_host:81\">FluentD (this link only verify status)</a> </li> </ul> UFCity Project: <a href=\"https://github.com/makleyston-ufc\">GitHub</a><br> Developed and maintained by <a href=\"http://lattes.cnpq.br/2002489019346835\">Danne M. G. Pereira</a>.<br> Inst. <a href=\"https://www.ufc.br/\">UFC</a> and <a href=\"http://www.mdcc.ufc.br/\">MDCC</a></body></html>" | sudo tee -a ./volume/home/index.html > /dev/null
 
 # Creating Dockerfiles
 ## Fluentd
