@@ -131,16 +131,14 @@ services:
     image: stain/jena-fuseki
     container_name: fuseki
     hostname: fuseki
-    restart: always
+    restart: always 
+    fuseki:
     ports:
-        - "3030:3030"
+      - 3030:3030
     environment:
-        - ADMIN_PASSWORD=ufcity
-        - TDB=2
-        # - FUSEKI_DATASET_1=ufcity-ont
-    volumes:
-        - ./volume/fuseki:/fuseki
-        - ./volume/fuseki-ontology:/staging
+      - ADMIN_PASSWORD=ufcity
+      - TDB=2
+      - FUSEKI_DATASET_1=ufcity-ont
     networks:
       net:
         ipv4_address: 192.168.10.5
