@@ -6,13 +6,20 @@
 
 ### How to use:
 
-Clone the UFCity repo:
+#### Clone the UFCity repo:
 ```
 git clone https://github.com/makleyston-ufc/ufcity-fog-docker.git
 cd ufcity-fog-docker
 ```
 
-Configuring the environment:
+#### Define the <HOST_IP> and Running the configuration:
+* Insert the host's IP address in the ip_address attribute in the ufcity-fog.sh file:
+```
+# HOST_IP
+ip_address="<HOST_IP>"
+```
+* Make sure to replace <HOST_IP> with the actual IP address of the host.
+* Run the following command with administrator privileges to execute the script:
 ```
 sudo ./ufcity-fog.sh
 ```
@@ -52,7 +59,7 @@ Go to `http://<host_ip>:80` to access the services present on the node.
 | resend/[uuid_device]/[uuid_resource]               | resend/[uuid_device]/+               | uuid_resource |
 
 
-#### Fog computing <> Edge Module
+#### Fog computing
  
 | _MQTT Topics_                                          | _Example_             | _Message_     |
 |--------------------------------------------------------|-----------------------|---------------|
