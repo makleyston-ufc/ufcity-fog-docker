@@ -19,9 +19,9 @@ cd ufcity-fog-docker
 ip_host="<HOST_IP>"
 
 # CLOUD_IP
-ip_cloud="10.0.0.247"
+ip_cloud="<CLOUD_IP>"
 ```
-* Make sure to replace `<HOST_IP>` with the actual IP address of the host.
+* Make sure to replace `<HOST_IP>` with the actual IP address of the host and `<CLOUD_IP>` with IP address of the cloud.
 * Run the following command with administrator privileges to execute the script:
 ```
 sudo ./ufcity-fog.sh
