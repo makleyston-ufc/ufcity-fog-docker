@@ -143,8 +143,6 @@ RUN ["gem", "install", "fluent-plugin-elasticsearch", "--no-document", "--versio
 USER fluent
 ' | sudo tee -a  ./dockerfiles/fluentd/Dockerfile > /dev/null
 
-wget -O ./volume/fuseki/dataset/iot-stream.rdf http://iot.ee.surrey.ac.uk/iot-crawler/ontology/iot-stream/ontology.xml
-
   # Update the version
   mkdir -p ./.version
   echo "{\"version\":\"$version\"}" | tee -a ./.version/data.json > /dev/null
