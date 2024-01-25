@@ -1,40 +1,92 @@
 #!/bin/bash
 
-# HOST_IP
-ip_host="10.0.0.112"
-
-# CLOUD_IP
-ip_cloud="10.0.0.247"
+# Author Danne M. G. Pereira
+# Date: January 25, 2024
 
 # Define the current installed version
 version="1.0"
+local_ip=""
+cloud_ip=""
+
+# Função para validar um endereço IP
+validate_ip() {
+    local ip="$1"
+    local valid_ip_pattern="^([0-9]{1,3}\.){3}[0-9]{1,3}$"
+
+    if [[ $ip =~ $valid_ip_pattern ]]; then
+        return 0 # Endereço IP válido
+    else
+        return 1 # Endereço IP inválido
+    fi
+}
+
+function print() {
+    local_ip_size=${#local_ip}
+    cloud_ip_size=${#cloud_ip}
+    local_ip_spaces=$((15 - local_ip_size))
+    cloud_ip_spaces=$((15 - cloud_ip_size))
+
+    echo "
+ _    _  ______  _____  _  _          
+| |  | ||  ____|/ ____|(_)| |         
+| |  | || |__  | |      _ | |_  _   _ 
+| |  | ||  __| | |     | || __|| | | |
+| |__| || |    | |____ | || |_ | |_| |
+ \____/ |_|     \_____||_| \__| \__, |
+                                 __/ |
+                                |___/ "
+    echo "Ｆｏｇ  ｃｏｍｐｕｔｉｎｇ"
+    echo "+-------------------------------------+"
+    echo "|Installed components:                |"
+    echo "+-------------------------------------+"
+    echo "|Fog Handler (data processing)        |"
+    echo "|Fog Semantic (semantic annotation)   |"
+    echo "|Fog CEP (complex events processing)  |"
+    echo "|MongoDB (storage)                    |"
+    echo "|Mongo Express (storage view)         |"
+    echo "|Mosquito (gateway MQTT)              |"
+    echo "|Fluend (logs)                        |"
+    echo "|Fuseki (semantic server)             |"
+    echo "|Elasticsearch (data analysis)        |"
+    echo "|Kibana (data analysis view)          |"
+    echo "+-------------------------------------+"
+    echo ""
+    echo "+-------------------------------------+"
+    echo "|Installed tools:                     |"
+    echo "+-------------------------------------+"
+    echo "|Docker                               |"
+    echo "|Docker components                    |"
+    echo "+-------------------------------------+"
+    echo ""
+    echo "+-------------------------------------+"
+    echo "|Configs:                             |"
+    echo "+-------------------------------------+"
+    echo "|Local IP: $local_ip$(printf "%${local_ip_spaces}s")            |"
+    echo "|Cloud computing IP: $cloud_ip$(printf "%${cloud_ip_spaces}s")  |"
+    echo "+-------------------------------------+"
+    echo ""
+    echo "Finish."
+}
+
 
 function perform_installation() {
+
   # Update repositories
-  # sudo apt update
+  sudo apt update
 
   # Install Docker
-  # sudo apt install docker
+  sudo apt install docker
 
   # Install Docker Compose
-  # sudo apt install docker-compose
-
-  # Removing folders
-  if [ -d "./volume" ]; then
-   rm -r "./volume"
-  fi
-
-  if [ -d "./dockerfiles" ]; then
-   rm -r "./dockerfiles"
-  fi
+  sudo apt install docker-compose
 
   # Creating folders
    mkdir -p ./volume/home
    mkdir -p ./volume/fluentd/conf
-   mkdir -p ./volume/fuseki
    mkdir -p ./volume/ufcity-semantic
    mkdir -p ./volume/ufcity-handler
    mkdir -p ./volume/ufcity-cep
+   mkdir -p ./volume/fuseki-server/data
    mkdir -p ./volume/mqtt/mosquitto/config
    mkdir -p ./volume/mqtt/mosquitto/data
    mkdir -p ./volume/mqtt/mosquitto/log
@@ -85,13 +137,15 @@ sudo tee ./volume/fluentd/conf/fluent.conf > /dev/null <<EOF
 </match>
 EOF
 
+wget -O iot-stream.rdf http://iot.ee.surrey.ac.uk/iot-crawler/ontology/iot-stream/ontology.xml
+
 # Deploy handler, cep, and semantic software
 sudo wget -v -O ./volume/ufcity-cep/ufcity-fog-cep-1.0-SNAPSHOT.jar https://github.com/makleyston-ufc/ufcity-fog-cep/raw/master/build/libs/ufcity-fog-cep-1.0-SNAPSHOT.jar
 echo "fog-computing:
-  - address: mqtt
+  - address: $local_ip
   - port: 1883
 cloud-computing:
-  - address: "$ip_cloud"
+  - address: $cloud_ip
   - port: 1883
 database:
   - address: mongo
@@ -101,13 +155,13 @@ database:
 
 sudo wget -v -O ./volume/ufcity-handler/ufcity-fog-handler-1.0-SNAPSHOT.jar https://github.com/makleyston-ufc/ufcity-fog-handler/raw/master/build/libs/ufcity-fog-handler-1.0-SNAPSHOT.jar
 echo "fog-computing:
- - address: mqtt
+ - address: $local_ip
  - port: 1883
 cloud-computing:
- - address: "$ip_cloud"
+ - address: $cloud_ip
  - port: 1883
 database:
- - address: mongo
+ - address: $local_ip
  - port: 27017
  - username: root
  - password: example
@@ -124,15 +178,16 @@ aggregating-data:
 
 sudo wget -v -O ./volume/ufcity-semantic/ufcity-fog-semantic-1.0-SNAPSHOT.jar https://github.com/makleyston-ufc/ufcity-fog-semantic/raw/master/build/libs/ufcity-fog-semantic-1.0-SNAPSHOT.jar
 echo "fog-computing:
- - address: mqtt
+ - address: $local_ip
  - port: 1883
 semantic:
- - address: fuseki
+ - address: $local_ip
  - port: 3030
  - username: admin
- - password: ufcity" | sudo tee -a  ./volume/ufcity-semantic/config.yaml > /dev/null
+ - password: admin" | sudo tee -a  ./volume/ufcity-semantic/config.yaml > /dev/null
 
-echo "<!DOCTYPE html><html lang=\"en\"><head> <meta charset=\"UTF-8\"> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> <title>UFCity - Fog Computing</title></head><body> Available services: <ul> <li> <a href=\"http://$ip_host:8081\">MongoDB</a> </li> <li> <a href=\"http://$ip_host:3030\">Fuseki server</a> </li> <li> <a href=\"http://$ip_host:5601\">Kibana</a> </li> <li> <a href=\"http://$ip_host:9200\">Elasticsearch (this link only verify status)</a> </li> <li> <a href=\"http://$ip_host:81\">FluentD (this link only verify status)</a> </li> </ul> UFCity Project: <a href=\"https://github.com/makleyston-ufc\">GitHub</a><br> Developed and maintained by <a href=\"http://lattes.cnpq.br/2002489019346835\">Danne M. G. Pereira</a>.<br> Inst. <a href=\"https://www.ufc.br/\">UFC</a> and <a href=\"http://www.mdcc.ufc.br/\">MDCC</a></body></html>" | sudo tee -a ./volume/home/index.html > /dev/null
+sudo wget -v -O ./volume/ufcity-semantic/ufcity-fog-semantic-1.0-SNAPSHOT.jar https://github.com/makleyston-ufc/ufcity-fog-semantic/raw/master/build/libs/ufcity-fog-semantic-1.0-SNAPSHOT.jar
+echo "<!DOCTYPE html><html lang='en'><head> <meta charset='UTF-8'> <meta name='viewport' content='width=device-width, initial-scale=1.0'> <title>UFCity - Fog Computing</title></head><body> Available services: <ul> <li> <a href='http://$local_ip:8081'>MongoDB</a> </li> <li> <a href='http://$local_ip:3030'>Fuseki server</a> </li> <li> <a href='http://$local_ip:5601'>Kibana</a> </li> <li> <a href='http://$local_ip:9200'>Elasticsearch (this link only verify status)</a> </li> <li> <a href='http://$local_ip:81'>FluentD (this link only verify status)</a> </li> </ul> UFCity Project: <a href='https://github.com/makleyston-ufc'>GitHub</a><br> Developed and maintained by <a href='http://lattes.cnpq.br/2002489019346835'>Danne M. G. Pereira</a>.<br> Inst. <a href='https://www.ufc.br/'>UFC</a> and <a href='http://www.mdcc.ufc.br/'>MDCC</a></body></html>" | sudo tee -a  ./volume/home/index.html > /dev/null
 
 # Creating Dockerfiles
 ## Fluentd
@@ -163,6 +218,62 @@ USER fluent
   # else
   #   echo "Command execution skipped."
   # fi
+
+  print
+}
+
+# Função para obter o IP local
+get_ip() {
+    local_ip=$(hostname -I | awk '{print $1}')
+    cloud_ip=""
+}
+
+# Função para exibir o IP e solicitar confirmação
+confirm_local_ip() {
+    echo "Local IP address: $local_ip"
+    read -p "Is the local IP address correct? (Y/N) " confirmation_local
+}
+
+# Função para exibir o IP e solicitar confirmação
+confirm_cloud_ip() {
+    if [ -n "$cloud_ip" ]; then
+      echo "Cloud computing IP address: $cloud_ip"
+      read -p "Is the cloud computing IP address correct? (Y/N) " confirmation_cloud
+    else
+      confirmation_cloud="N"
+    fi
+}
+
+function config_IP_address() {
+
+  get_ip
+
+  while true; do
+    confirm_local_ip
+    if [ "$confirmation_local" == "Y" ]; then
+        echo "Local IP is OK!"
+        break
+    elif [ "$confirmation_local" == "N" ]; then
+        read -p "Insert the local IP address correctly (e.g., xxx.xxx.xxx.xxx): " local_ip
+    else
+        echo "Invalid option. Please enter Y for yes or N for no."
+    fi
+  done
+
+  while true; do
+    confirm_cloud_ip
+    if [ "$confirmation_cloud" == "Y" ]; then
+        echo "Cloud computing IP is OK!"
+        break
+    elif [ "$confirmation_cloud" == "N" ]; then
+        read -p "Insert the cloud computing IP address correctly (e.g., xxx.xxx.xxx.xxx): " cloud_ip
+    else
+        echo "Invalid option. Please enter Y for yes or N for no."
+    fi
+  done
+
+  perform_installation
+
 }
 
 # Check if the .version directory exists
@@ -175,11 +286,12 @@ if [ -f "./.version/data.json" ]; then
         echo "The current version $version_number is equal to or newer than the version you're trying to execute, $version. No action required."
     else
         echo "The version $version is newer than the current version $version_number. Starting the installation..."
-        perform_installation
+        config_IP_address
         echo "Installation completed. Run 'docker-compose up -d' to initialize the containers."
     fi
 else
     echo "The .version/data.json file does not exist. Starting the installation..."
-    perform_installation
+    config_IP_address
     echo "Installation completed. Run 'docker-compose up -d' to initialize the containers."
+    echo "Visit http://$local_ip to access the installed services."
 fi
