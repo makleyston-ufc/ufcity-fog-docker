@@ -16,12 +16,14 @@
 
 
 # About <a id="anchor_about"></a>
-The Edge Module is a software component that integrates with the UFCity smart city solution. This component operates at the edge of the computer network, offering local services that allow the city's resources to communicate with the services of Fog Computing and Cloud Computing, abstracting the communication protocols and enabling the exchange of data. This includes both sending data from sensors present in intelligent environments and receiving commands to actuate actuators present in physical-cyber spaces.
+The Fog computing - Docker is a set of software components that integrates with the UFCity smart city solution. This set component operates in the UFCity network between edge and cloud computing, offering services like semantic annotation, data processing, and complex events processing. This set of software components works transparently in each fog computing node of UFCity. So, all the communication protocols and message structures are ready inside. See the last topic in the README for more info about the message structure.
 
-The Edge Module performs various data processing and treatments to address issues such as data heterogeneity, dirty data, and volume. For more information, please refer to the project website's publications on the advances of this module.
+Some services in fog computing nodes enable the data views in operation. So, this software set has a service data monitor. Visit the http://<fog_computing_ip>:80.
+
+See the project webpage and repositories on GitHub for more info.
 
 # Contributions <a id="anchor_contributions"></a>
-This software module, along with the other software elements present throughout the UFCity project, is the result of research carried out within the framework of the Computer Science course of the [Master's and Doctorate in Computer Science (MDCC)](http://www.mdcc.ufc.br/) program at the [Federal University of Ceará (UFC)](https://www.ufc.br/).
+This set of software components, along with the other software elements present throughout the UFCity project, is the result of research carried out within the framework of the Computer Science course of the [Master's and Doctorate in Computer Science (MDCC)](http://www.mdcc.ufc.br/) program at the [Federal University of Ceará (UFC)](https://www.ufc.br/).
 
 **Collaborators**: <a id="anchor_colab"></a>
 
