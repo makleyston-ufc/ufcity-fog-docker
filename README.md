@@ -6,7 +6,7 @@
 <div class="view">
   <a href="https://makleyston-ufc.github.io/ufcity"> <img src="https://img.shields.io/badge/UFCity_webpage-0076D6?style=for-the-badge&logo=internetexplorer&logoColor=white"> </a>
 
-  <a href="https://github.com/makleyston-ufc"> <img src="https://img.shields.io/badge/UFCity_--_Project's_repositories-181717?style=for-the-badge&logo=github&logoColor=white"> </a>
+  <a href="https://github.com/makleyston-ufc/ufcity-fog-docker"> <img src="https://img.shields.io/badge/View_on_GitHub-181717?style=for-the-badge&logo=github&logoColor=white"> </a>
 </div>
 
 # UFCity - Fog computing
