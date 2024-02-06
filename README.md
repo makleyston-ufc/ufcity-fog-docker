@@ -133,7 +133,7 @@ sudo docker ps
 sudo docker logs [container name] --tail [number of lines]
 
 # Restart a container
-docker restart [container name]
+sudo docker restart [container name]
 ```
 
 Visit the [official Docker webpage](https://www.docker.com/) for more information.
