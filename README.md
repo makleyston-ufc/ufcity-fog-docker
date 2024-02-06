@@ -18,9 +18,11 @@
   * [Requirements](#anchor_requirements)
 * [How to Use](#anchor_usage)
   * [Clone the UFCity repository](#anchor_clone)
+  * [Setting the environment variables](#anchor_env)
   * [Running the installation script locally](#anchor_init_locally)
   * [Running the installation script on the Virtual Machine (VM) via Vagrant](#anchor_init_vagrant)
   * [Initializing the Docker containers](#anchor_initializing_docker_containers)
+  * [Uninstall the fog computing](#anchor_uninstall)
   * [Outline structure used between Docker containers](#anchor_outline_structure)
 
 
@@ -56,11 +58,23 @@ git clone https://github.com/makleyston-ufc/ufcity-fog-docker.git
 cd ufcity-fog-docker
 ```
 
+#### Setting the environment variables <a id="anchor_env"></a>
+In case it is necessary, modify the environment variables to customize the installation. The environment variables are located in `.env`.
+
+Some variables include:
+
+* Mongo and Fuseki credentials.
+* Versions of the container images.
+* Type of data processing algorithm.
+
+Refer to the [.env](./.env) file for more information.
+
 #### Running the installation script locally <a id="anchor_init_locally"></a>
 
 ```
-sudo chmod +x ./ufcity-fog.sh
-sudo ./ufcity-fog.sh
+source .env
+sudo chmod +x ./ufcity-fog-install.sh
+sudo ./ufcity-fog-install.sh
 ```
 
 * When prompted, provide the fog computing (local IP) and cloud computing IP addresses.
@@ -81,10 +95,11 @@ vagrant up
 
 #### Initializing the Docker containers <a id="anchor_initializing_docker_containers"></a> 
 ```
+source .env
 sudo docker-compose up -d
 ```
 
-This release (version 1.0) contains the following services:
+This release (version 0.1) contains the following services:
 * [fuseki](https://hub.docker.com/r/stain/jena-fuseki)
 * [ufcity-handler](https://github.com/makleyston-ufc/ufcity-fog-handler)
 * [ufcity-cep](https://github.com/makleyston-ufc/ufcity-fog-cep)
@@ -96,6 +111,12 @@ This release (version 1.0) contains the following services:
 * [mongo database](https://hub.docker.com/_/mongo)
 
 Go to `http://<fog_computing_ip>:80` to access the services present on the node.
+
+#### Uninstalling the fog computing <a id="anchor_uninstall"></a>
+```
+sudo chmod +x uninstall.sh
+./uninstall.sh
+```
 
 #### Outline structure used between Docker containers <a id="anchor_outline_structure"></a> 
 ##### Edge computing
