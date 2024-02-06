@@ -118,6 +118,26 @@ sudo chmod +x uninstall.sh
 ./uninstall.sh
 ```
 
+#### Some useful Docker commands
+```
+# Start containers
+sudo docker-compose up -d
+
+# Stop containers
+sudo docker-compose down
+
+# View running containers
+sudo docker ps
+
+# View container logs
+sudo docker logs [container name] --tail [number of lines]
+
+# Restart a container
+docker restart [container name]
+```
+
+Visit the [official Docker webpage](https://www.docker.com/) for more information.
+
 #### Outline structure used between Docker containers <a id="anchor_outline_structure"></a> 
 ##### Edge computing
 
