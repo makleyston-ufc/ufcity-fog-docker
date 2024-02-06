@@ -10,5 +10,5 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.network "public_network", bridge: "wlp3s0"
-  config.vm.provision "shell", path: "ufcity-fog.sh"
+  config.vm.provision "shell", path: "ufcity-fog-install.sh"
 end
